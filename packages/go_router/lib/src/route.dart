@@ -1220,7 +1220,16 @@ class StatefulNavigationShellState extends State<StatefulNavigationShell>
   /// trailing imperative matches from the RouterMatchList that are targeted at
   /// any other (often top-level) Navigator.
   RouteMatchList _scopedMatchList(RouteMatchList matchList) {
-    return matchList.copyWith(matches: _scopeMatches(matchList.matches));
+    final List<RouteMatchBase> scopedMatches = _scopeMatches(matchList.matches);
+    RouteMatchList scopedMatchList = matchList;
+
+    // Remove routes together with their URI segments and path parameters.
+    while (scopedMatchList.isNotEmpty &&
+        !listEquals(scopedMatchList.matches, scopedMatches)) {
+      scopedMatchList = scopedMatchList.remove(scopedMatchList.last);
+    }
+
+    return scopedMatchList;
   }
 
   List<RouteMatchBase> _scopeMatches(List<RouteMatchBase> matches) {
